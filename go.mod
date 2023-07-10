@@ -1,3 +1,3 @@
-module main
+module montecristo
 
 go 1.19
