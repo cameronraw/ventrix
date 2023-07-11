@@ -3,13 +3,14 @@ package main
 import (
 	"log"
 	"montecristo/cmd/api"
+	"montecristo/cmd/config"
 	"net/http"
 	"os"
 	"time"
 )
 
 func main() {
-	config := api.NewConfig()
+	config := config.NewConfig()
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 	app := api.CreateApplication(config, logger)
 

@@ -1,11 +1,11 @@
 package api
 
 import (
-	"montecristo/cmd/api/security"
-	"montecristo/cmd/api/security/strategies"
+	"montecristo/cmd/security"
+	"montecristo/cmd/security/strategies"
 )
 
-func CreateSecurityMiddleware(strategy SecurityStrategy) security.SecurityMiddleware {
+func CreateSecurityMiddleware(strategy security.SecurityStrategy) security.SecurityMiddleware {
   return security.CreateSecurityMiddleware(strategy)
 }
 

@@ -3,23 +3,24 @@ package api
 import (
 	"fmt"
 	"log"
+	"montecristo/cmd/config"
 	"net/http"
 )
 
 type Application struct {
-	config     Config
+	config     config.Config
 	logger     *log.Logger
-	middleware []Middleware
+	Middleware []Middleware
 }
 
-func CreateApplication(config Config, logger *log.Logger) *Application {
+func CreateApplication(config config.Config, logger *log.Logger) *Application {
 	app := &Application{
 		config:     config,
 		logger:     logger,
-		middleware: []Middleware{},
+		Middleware: []Middleware{},
 	}
 
-	app.ConfigureMiddleware()
+	ConfigureMiddleware(app)
 
 	return app
 }
@@ -28,7 +29,7 @@ func (app *Application) CreateAddr() string {
 	return fmt.Sprintf(":%d", app.config.Port)
 }
 
-func (app *Application) CreatePreconfiguredHandler(config *Config) *http.ServeMux {
+func (app *Application) CreatePreconfiguredHandler(config *config.Config) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/health", app.applyMiddleware(app.healthCheck))
 	return mux
