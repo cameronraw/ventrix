@@ -18,6 +18,7 @@ func (app *Application) healthCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := json.WriteJSON(w, r, http.StatusOK, json.Envelope{"response": data})
+
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
