@@ -70,14 +70,19 @@ func createWorkerForService(service Service) {
 				}
 			}
 
+			payload, err := json.Marshal(v.Payload)
+			if err != nil {
+				return err
+			}
+
 			postBody, _ := json.Marshal(map[string]string{
-        "event_type": v.Type,
-        "payload": v.Payload,
-      })
+				"event_type": v.Type,
+				"payload":    string(payload),
+			})
 
 			requestBody := bytes.NewBuffer(postBody)
 
-      log.Print("Request body: ", requestBody)
+			log.Print("Request body: ", requestBody)
 
 			r, err := http.NewRequest("POST", service.Endpoint, requestBody)
 			if err != nil {
@@ -149,9 +154,9 @@ func RegisterServiceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type QueueEventRequest struct {
-	Type    string `json:"type"`
-	Payload string `json:"payload"`
-	Timeout int    `json:"timeout"`
+	Type    string            `json:"type"`
+	Payload map[string]string `json:"payload"`
+	Timeout int               `json:"timeout"`
 }
 
 func (request *QueueEventRequest) ToEvent() Event {
@@ -203,15 +208,15 @@ func RegisterEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  if value, exists := registeredEvents[request.EventType]; !exists {
-    log.Print("Registering new event type: ", request.EventType)
-    registeredEvents[request.EventType] = []string{}
-  }else{
-    log.Print("Event type already registered: ", request.EventType)
-    log.Print("Registered events: ", value)
-  }
+	if value, exists := registeredEvents[request.EventType]; !exists {
+		log.Print("Registering new event type: ", request.EventType)
+		registeredEvents[request.EventType] = []string{}
+	} else {
+		log.Print("Event type already registered: ", request.EventType)
+		log.Print("Registered events: ", value)
+	}
 
-  log.Print("Registered events: ", registeredEvents)
+	log.Print("Registered events: ", registeredEvents)
 }
 
 func ListenEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -224,9 +229,9 @@ func ListenEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	if value, exists := registeredEvents[request.Type]; exists {
 		registeredEvents[request.Type] = append(value, request.ServiceName)
-    log.Print("Registered events: ", registeredEvents)
+		log.Print("Registered events: ", registeredEvents)
 	} else {
-    log.Print("Couldn't find event type: ", request.Type)
-    log.Print("Registered events: ", registeredEvents)
-  }
+		log.Print("Couldn't find event type: ", request.Type)
+		log.Print("Registered events: ", registeredEvents)
+	}
 }

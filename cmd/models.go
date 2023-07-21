@@ -16,7 +16,7 @@ type RegisteredService struct {
 type Event struct {
 	gorm.Model
 	Type         string
-	Payload      string
+	Payload      map[string]string
 	Timeout      int
 }
 
