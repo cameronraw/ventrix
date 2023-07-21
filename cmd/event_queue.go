@@ -1,14 +1,16 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"log"
+	"net/http"
 	"time"
-)
 
-const (
-  TaskStatusPending = "pending"
-  TaskStatusComplete = "complete"
-  TaskStatusFailed = "failed"
+	"github.com/golang-queue/queue"
+	"github.com/golang-queue/queue/core"
+	"github.com/golang-queue/redisdb"
 )
 
 type Task struct {
@@ -17,7 +19,6 @@ type Task struct {
   Status  string
   SendAt  time.Time
 }
-
 
 func QueueEvent(event Event) error {
 
@@ -34,29 +35,6 @@ func QueueEvent(event Event) error {
     }
   }
   
-  // Fetch services interested in this event type
-  // services, err := GetServicesByEventType(event.Type)
-  // if err != nil {
-  //   return err
-  // }
-
-  // Loop over services and queue event for each
-  // for _, service := range services {
-  //   // Create a task
-  //   task := Task{
-  //     Service: service.ID,
-  //     Event:   event.ID,
-  //     Status:  TaskStatusPending,
-  //     SendAt:  time.Now().Add(time.Duration(event.Timeout) * time.Second),
-  //   }
-
-  //   // Save task to database
-  //   result := db.Create(&task)
-  //   if result.Error != nil {
-  //     return result.Error
-  //   }
-  // }
-
   return nil
 }
 
@@ -72,3 +50,63 @@ func GetServicesByEventType(eventType string) ([]Service, error) {
   return []Service{}, nil
 }
 
+func CreateWorkerForService(service Service) {
+	w := redisdb.NewWorker(
+		redisdb.WithAddr("redis:6379"),
+		redisdb.WithChannel(service.Name),
+		redisdb.WithRunFunc(func(ctx context.Context, m core.QueuedMessage) error {
+			log.Printf("Firing worker for service: %s", service.Name)
+			v, ok := m.(*Event)
+			if !ok {
+				if err := json.Unmarshal(m.Bytes(), &v); err != nil {
+					return err
+				}
+			}
+
+			payload, err := json.Marshal(v.Payload)
+			if err != nil {
+				return err
+			}
+
+			postBody, _ := json.Marshal(map[string]string{
+				"event_type": v.Type,
+				"payload":    string(payload),
+			})
+
+			requestBody := bytes.NewBuffer(postBody)
+
+			log.Print("Request body: ", requestBody)
+
+			r, err := http.NewRequest("POST", service.Endpoint, requestBody)
+			if err != nil {
+				panic(err)
+			}
+
+			r.Header.Add("Content-Type", "application/json")
+
+			client := &http.Client{}
+			res, err := client.Do(r)
+			if err != nil {
+				panic(err)
+			}
+
+			defer res.Body.Close()
+
+			log.Print("Response from service: ", res.Body)
+
+			return nil
+		}),
+	)
+
+	q, err := queue.NewQueue(
+		queue.WithWorkerCount(10),
+		queue.WithWorker(w),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	q.Start()
+
+	registeredServices[service.Name] = q
+}
