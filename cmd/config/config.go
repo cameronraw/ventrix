@@ -50,12 +50,12 @@ func GetConfig() (Config, error) {
     return cfg, nil
   }
 
-  parsedPort := os.Getenv("MONTECRISTO_PORT")
-  env := os.Getenv("MONTECRISTO_ENV")
-  key := os.Getenv("MONTECRISTO_KEY")
-  sqlDsn := os.Getenv("MONTECRISTO_SQL_DSN")
-  redisUrl := os.Getenv("MONTECRISTO_REDIS_URL")
-  parsedUseInMemory := os.Getenv("MONTECRISTO_USE_IN_MEMORY")
+  parsedPort := os.Getenv("VENTRIX_PORT")
+  env := os.Getenv("VENTRIX_ENV")
+  key := os.Getenv("VENTRIX_KEY")
+  sqlDsn := os.Getenv("VENTRIX_SQL_DSN")
+  redisUrl := os.Getenv("VENTRIX_REDIS_URL")
+  parsedUseInMemory := os.Getenv("VENTRIX_USE_IN_MEMORY")
 
   port, err := strconv.Atoi(parsedPort)
 

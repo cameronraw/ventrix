@@ -1,8 +1,8 @@
 package api
 
 import (
-	"montecristo/cmd/security"
-	"montecristo/cmd/security/strategies"
+	"github.com/cameronraw/ventrix/cmd/security"
+	"github.com/cameronraw/ventrix/cmd/security/strategies"
 )
 
 func CreateSecurityMiddleware(strategy security.SecurityStrategy) security.SecurityMiddleware {

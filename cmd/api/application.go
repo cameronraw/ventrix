@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
-	"montecristo/cmd/config"
+  "github.com/cameronraw/ventrix/cmd/config"
 	"net/http"
 )
 

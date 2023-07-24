@@ -7,12 +7,12 @@ LABEL maintainer="Cameron Raw <cameron.raw89@gmail.com>"
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-ENV MONTECRISTO_PORT=8080
-ENV MONTECRISTO_ENV=development
-ENV MONTECRISTO_KEY=secret
-ENV MONTECRISTO_SQL_DSN=
-ENV MONTECRISTO_REDIS_URL=127.0.0.1:6379
-ENV MONTECRISTO_USE_IN_MEMORY=true
+ENV VENTRIX_PORT=8080
+ENV VENTRIX_ENV=development
+ENV VENTRIX_KEY=secret
+ENV VENTRIX_SQL_DSN=
+ENV VENTRIX_REDIS_URL=127.0.0.1:6379
+ENV VENTRIX_USE_IN_MEMORY=true
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./

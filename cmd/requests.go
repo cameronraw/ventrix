@@ -1,5 +1,8 @@
 package main
 
+import "github.com/cameronraw/ventrix/cmd/queue"
+
+
 type ListenEventRequest struct {
 	ServiceName string `json:"service_name"`
 	Type        string `json:"type"`
@@ -20,8 +23,8 @@ type QueueEventRequest struct {
 	Timeout int               `json:"timeout"`
 }
 
-func (request *QueueEventRequest) ToEvent() Event {
-	return Event{
+func (request *QueueEventRequest) ToEvent() queue.Event {
+	return queue.Event{
 		Type:    request.Type,
 		Payload: request.Payload,
 		Timeout: request.Timeout,

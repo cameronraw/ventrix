@@ -2,20 +2,13 @@ package main
 
 import (
 	"log"
-	"montecristo/cmd/config"
 
-	"github.com/golang-queue/queue"
+	"github.com/cameronraw/ventrix/cmd/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
-
-// Map of service name to service worker
-var registeredServices = make(map[string]*queue.Queue)
-
-// Map of event type to list of service names
-var registeredEvents = make(map[string][]string)
 
 var cfg config.Config
 

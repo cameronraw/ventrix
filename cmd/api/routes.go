@@ -1,8 +1,9 @@
 package api
 
 import (
-	"montecristo/cmd/internal/json"
 	"net/http"
+
+	"github.com/cameronraw/ventrix/cmd/internal/json"
 )
 
 func (app *Application) healthCheck(w http.ResponseWriter, r *http.Request) {

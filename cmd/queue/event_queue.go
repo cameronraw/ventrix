@@ -1,4 +1,4 @@
-package main
+package queue
 
 import (
 	"bytes"
@@ -18,6 +18,34 @@ type Task struct {
   Event   uint
   Status  string
   SendAt  time.Time
+}
+
+// Map of service name to service worker
+var registeredServices = make(map[string]*queue.Queue)
+
+// Map of event type to list of service names
+var registeredEvents = make(map[string][]string)
+
+func RegisterEvent(eventType string) {
+	if value, exists := registeredEvents[eventType]; !exists {
+		log.Print("Registering new event type: ", eventType)
+		registeredEvents[eventType] = []string{}
+	} else {
+		log.Print("Event type already registered: ", eventType)
+		log.Print("Registered events: ", value)
+	}
+
+	log.Print("Registered events: ", registeredEvents)
+}
+
+func ListenToEvent(serviceName string, eventType string) {
+  if value, exists := registeredEvents[eventType]; exists {
+    registeredEvents[eventType] = append(value, serviceName)
+    log.Print("Registered events: ", registeredEvents)
+  } else {
+    log.Print("Couldn't find event type: ", eventType)
+    log.Print("Registered events: ", registeredEvents)
+  }
 }
 
 func QueueEvent(event Event) error {

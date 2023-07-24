@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-)
 
+	"github.com/cameronraw/ventrix/cmd/queue"
+)
 
 func RegisterServiceHandler(w http.ResponseWriter, r *http.Request) {
 	var request RegisterServiceRequest
@@ -15,14 +16,14 @@ func RegisterServiceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newService := Service{
+	newService := queue.Service{
 		Name:     request.Name,
 		Endpoint: request.Endpoint,
 	}
 
 	log.Print("Registering service: ", newService)
 
-	CreateWorkerForService(newService)
+	queue.CreateWorkerForService(newService)
 
 	log.Print("After creating worker: ", newService)
 
@@ -50,15 +51,7 @@ func RegisterEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if value, exists := registeredEvents[request.EventType]; !exists {
-		log.Print("Registering new event type: ", request.EventType)
-		registeredEvents[request.EventType] = []string{}
-	} else {
-		log.Print("Event type already registered: ", request.EventType)
-		log.Print("Registered events: ", value)
-	}
-
-	log.Print("Registered events: ", registeredEvents)
+	queue.RegisterEvent(request.EventType)
 }
 
 func ListenEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,13 +62,7 @@ func ListenEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if value, exists := registeredEvents[request.Type]; exists {
-		registeredEvents[request.Type] = append(value, request.ServiceName)
-		log.Print("Registered events: ", registeredEvents)
-	} else {
-		log.Print("Couldn't find event type: ", request.Type)
-		log.Print("Registered events: ", registeredEvents)
-	}
+	queue.ListenToEvent(request.ServiceName, request.Type)
 }
 
 func QueueEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +75,7 @@ func QueueEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	event := request.ToEvent()
 
-	err = QueueEvent(event)
+	err = queue.QueueEvent(event)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
